@@ -29,7 +29,7 @@ def scan_port(target_ip, port):
         print("\nErro ao conectar ao servidor")
         exit()
 
-def start_scan(target_ip, port_range):
+def start_scan(target_ip, port_range): # Sistema de Threads
     threads = []
 
     for port in range(1, 1025):
