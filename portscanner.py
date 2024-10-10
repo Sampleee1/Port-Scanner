@@ -5,6 +5,16 @@ import threading
 i = 0
 
 
+def grab_banner(sock):
+    try:
+        sock.send(b'HEAD / HTTP/ 1.1\r\n\r\n')
+        banner = sock.recv(1024)
+        return banner.decode().strip()
+
+    except:
+        return "Banner não disponivel"
+
+
 def scan_port(target_ip, port):
     global i
     try:
@@ -14,6 +24,8 @@ def scan_port(target_ip, port):
 
         if result == 0:
             print(f"Porta {port} está aberta!")
+            banner = grab_banner(sock)
+            print(f"Banner da porta {port}: {banner}")
             i += 1
         sock.close
 
@@ -29,7 +41,7 @@ def scan_port(target_ip, port):
         print("\nErro ao conectar ao servidor")
         exit()
 
-def start_scan(target_ip, port_range): # Sistema de Threads
+def start_scan(target_ip): # Sistema de Threads
     threads = []
 
     for port in range(1, 1025):
@@ -52,7 +64,7 @@ tempoI = start_time.strftime('%H : %M : %S')
 print(f"Horario de inicio: {tempoI}")
 print("-" * 50)
 
-start_scan(target_ip, range(1, 1025))
+start_scan(target_ip)
 
 if i == 0: 
     print("Nenhuma porta esta aberta!")
