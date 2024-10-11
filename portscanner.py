@@ -1,25 +1,45 @@
 import socket
 from datetime import datetime
 import threading 
+import time
 
 i = 0
-
 
 def grab_banner(sock):
     try:
         sock.send(b'HEAD / HTTP/ 1.1\r\n\r\n')
-        banner = sock.recv(1024)
+        banner = sock.recv(1024).decode('utf-8')
         return banner.decode().strip()
+        return IdeServ(banner)
 
-    except:
-        return "Banner não disponivel"
+    except Exception as e:
+        return f"Erro ao capturar o banner: {str(e)}"
+    
+
+def IdeServ(banner):
+    common_services = {
+        "Apache": "apache",
+        "Nginx": "nginx",
+        "SSH": "ssh",
+    	"FTP": "ftp",
+        "MySQL": "mysql",
+        "SMTP": "smtp",
+        "Telnet": "telnet",
+        "Microsoft IIS": "Microsoft-IIS"
+    }
+
+    for service, palavra_chave in common_services.items():
+        if palavra_chave.lower() in banner.lower():
+            return f"Serviço detectado: {service}"
+        
+    return f"Serviço não identificado no banner."
 
 
 def scan_port(target_ip, port):
     global i
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        socket.setdefaulttimeout(1)
+        socket.setdefaulttimeout(2)
         result = sock.connect_ex((target_ip, port))
 
         if result == 0:
@@ -28,6 +48,7 @@ def scan_port(target_ip, port):
             print(f"Banner da porta {port}: {banner}")
             i += 1
         sock.close
+        time.sleep(0.1)
 
     except KeyboardInterrupt:
         print("processo interrompido")
@@ -60,7 +81,7 @@ target_ip = socket.gethostbyname(target)
 print("\n" * 100)
 print(f"Escaneando {target} ({target_ip})")
 start_time = datetime.now()
-tempoI = start_time.strftime('%H : %M : %S')
+tempoI = start_time.strftime('%H:%M:%S')
 print(f"Horario de inicio: {tempoI}")
 print("-" * 50)
 
